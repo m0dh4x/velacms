@@ -1,0 +1,7 @@
+{
+  "name": "@vela/database",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
