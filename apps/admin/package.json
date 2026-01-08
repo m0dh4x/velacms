@@ -1,0 +1,12 @@
+{
+  "name": "@vela/admin",
+  "private": true,
+  "scripts": {
+    "dev": "bun --hot ./src/index.ts",
+    "build": "bun build --target=bun --outdir=dist ./src/index.ts"
+  },
+  "dependencies": {
+    "@vela/auth": "workspace:*",
+    "vue": "^3"
+  }
+}
