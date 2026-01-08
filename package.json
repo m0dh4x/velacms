@@ -1,0 +1,16 @@
+{
+  "name": "withvelacms",
+  "private": true,
+  "workspaces": ["apps/*", "packages/*"],
+  "scripts": {
+    "dev": "bun run --filter @vela/api dev",
+    "dev:api": "bun run --filter @vela/api dev",
+    "dev:admin": "bun run --filter @vela/admin dev",
+    "build": "bun run --filter '*' build",
+    "test": "bun test"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "typescript": "^5"
+  }
+}
