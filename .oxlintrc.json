@@ -1,41 +1,36 @@
 {
-  "$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
-  "rules": {
-    "no-unused-vars": "error",
-    "no-console": "warn",
-    "eqeqeq": "error",
-    "no-var": "error",
-    "prefer-const": "error",
-    "no-duplicate-imports": "error",
-    "no-self-compare": "error",
-    "no-template-curly-in-string": "warn",
-    "no-unreachable": "error",
-    "no-unsafe-negation": "error",
-    "valid-typeof": "error",
-    "no-empty": "error",
-    "no-empty-function": "warn",
-    "no-eval": "error",
-    "no-implied-eval": "error",
-    "no-new-func": "error",
-    "no-return-await": "warn",
-    "no-throw-literal": "error",
-    "no-useless-catch": "error",
-    "no-useless-return": "warn",
-    "prefer-promise-reject-errors": "error",
-    "require-await": "warn"
-  },
-  "ignorePatterns": [
-    "node_modules",
-    "dist",
-    "*.d.ts",
-    "data"
-  ],
-  "overrides": [
-    {
-      "files": ["*.test.ts", "*.spec.ts"],
-      "rules": {
-        "no-console": "off"
-      }
-    }
-  ]
+	"$schema": "https://raw.githubusercontent.com/oxc-project/oxc/main/npm/oxlint/configuration_schema.json",
+	"rules": {
+		"no-unused-vars": "error",
+		"no-console": "warn",
+		"eqeqeq": "error",
+		"no-var": "error",
+		"prefer-const": "error",
+		"no-duplicate-imports": "error",
+		"no-self-compare": "error",
+		"no-template-curly-in-string": "warn",
+		"no-unreachable": "error",
+		"no-unsafe-negation": "error",
+		"valid-typeof": "error",
+		"no-empty": "error",
+		"no-empty-function": "warn",
+		"no-eval": "error",
+		"no-implied-eval": "error",
+		"no-new-func": "error",
+		"no-return-await": "warn",
+		"no-throw-literal": "error",
+		"no-useless-catch": "error",
+		"no-useless-return": "warn",
+		"prefer-promise-reject-errors": "error",
+		"require-await": "warn"
+	},
+	"ignorePatterns": ["node_modules", "dist", "*.d.ts", "data"],
+	"overrides": [
+		{
+			"files": ["*.test.ts", "*.spec.ts"],
+			"rules": {
+				"no-console": "off"
+			}
+		}
+	]
 }
