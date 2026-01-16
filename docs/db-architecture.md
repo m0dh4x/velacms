@@ -313,15 +313,6 @@ erDiagram
 | content_feedback | Comments/feedback on content fields                                         |
 | workflows        | Workflow state machine definitions                                          |
 
-### Content Model Concepts
-
-| Concept   | Description                                                                                        |
-| --------- | -------------------------------------------------------------------------------------------------- |
-| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
-| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
-| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
-| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
-
 ### Assets
 
 | Table         | Description                              |
@@ -358,3 +349,13 @@ erDiagram
 | Table    | Description                      |
 | -------- | -------------------------------- |
 | api_keys | API keys for programmatic access |
+
+
+## Content Model Concepts
+
+| Concept   | Description                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------- |
+| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
+| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
+| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
+| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
