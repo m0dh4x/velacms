@@ -304,23 +304,23 @@ erDiagram
 
 ### Content System
 
-| Table            | Description                                                                    |
-| ---------------- | ------------------------------------------------------------------------------ |
-| blueprints       | Schema definitions for content and fragments (configurable per harbor)         |
-| content          | Actual content entries with i18n support (canonical_id groups translations)    |
-| content_versions | Version history for content                                                    |
-| content_refs     | Relationships between content entries (enables composition)                    |
-| content_feedback | Comments/feedback on content fields                                            |
-| workflows        | Workflow state machine definitions                                             |
+| Table            | Description                                                                 |
+| ---------------- | --------------------------------------------------------------------------- |
+| blueprints       | Schema definitions for content and fragments (configurable per harbor)      |
+| content          | Actual content entries with i18n support (canonical_id groups translations) |
+| content_versions | Version history for content                                                 |
+| content_refs     | Relationships between content entries (enables composition)                 |
+| content_feedback | Comments/feedback on content fields                                         |
+| workflows        | Workflow state machine definitions                                          |
 
 ### Content Model Concepts
 
-| Concept   | Description                                                                                         |
-| --------- | --------------------------------------------------------------------------------------------------- |
-| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)   |
-| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other  |
-| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                     |
-| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting    |
+| Concept   | Description                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------- |
+| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
+| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
+| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
+| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
 
 ### Assets
 
