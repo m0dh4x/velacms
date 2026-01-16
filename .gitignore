@@ -1,6 +1,9 @@
 # dependencies (bun install)
 node_modules
 
+# Database data files (local)
+packages/db/data/
+
 # logs
 logs
 _.log
