@@ -12,7 +12,7 @@ erDiagram
 
     harbors ||--o{ harbor_users : "has many"
     harbors ||--o{ harbor_locales : "has many"
-    harbors ||--o{ content_types : "has many"
+    harbors ||--o{ blueprints : "has many"
     harbors ||--o{ content : "has many"
     harbors ||--o{ workflows : "has many"
     harbors ||--o{ assets : "has many"
@@ -21,8 +21,9 @@ erDiagram
     harbors ||--o{ harbor_plugins : "has many"
 
     %% ===== CONTENT SYSTEM =====
-    content_types ||--o{ content : "defines"
+    blueprints ||--o{ content : "defines"
     content ||--o{ content_versions : "has versions"
+    content ||--o{ content_refs : "references"
     content ||--o{ content_feedback : "has feedback"
 
     %% ===== ASSETS =====
@@ -92,13 +93,14 @@ erDiagram
         datetime created_at
     }
 
-    content_types {
+    blueprints {
         text id PK
         text harbor_id FK
         text name
         text slug
         text description
         text icon
+        text type "content or fragment"
         json schema
         json settings
         integer version
@@ -109,8 +111,11 @@ erDiagram
     content {
         text id PK
         text harbor_id FK
-        text content_type_id FK
+        text blueprint_id FK
+        text canonical_id "groups translations"
+        text locale FK
         text slug
+        text title
         json data
         text workflow_state
         integer version
@@ -127,6 +132,15 @@ erDiagram
         integer version
         json data
         text created_by
+        datetime created_at
+    }
+
+    content_refs {
+        text id PK
+        text source_id FK
+        text target_canonical_id
+        text field_path
+        integer position
         datetime created_at
     }
 
@@ -279,51 +293,68 @@ erDiagram
 ## Table Overview
 
 ### Multi-Tenancy
-| Table | Description |
-|-------|-------------|
-| organizations | Optional grouping of harbors (enterprise feature) |
-| harbors | Main tenant unit - each harbor is an isolated CMS instance |
-| harbor_users | User membership and roles within a harbor |
-| organization_users | User membership within an organization |
-| harbor_locales | Locale/language configuration per harbor |
+
+| Table              | Description                                                |
+| ------------------ | ---------------------------------------------------------- |
+| organizations      | Optional grouping of harbors (enterprise feature)          |
+| harbors            | Main tenant unit - each harbor is an isolated CMS instance |
+| harbor_users       | User membership and roles within a harbor                  |
+| organization_users | User membership within an organization                     |
+| harbor_locales     | Locale/language configuration per harbor                   |
 
 ### Content System
-| Table | Description |
-|-------|-------------|
-| content_types | Schema definitions for content (like Blog Post, Product) |
-| content | Actual content entries |
-| content_versions | Version history for content |
-| content_feedback | Comments/feedback on content fields |
-| workflows | Workflow state machine definitions |
+
+| Table            | Description                                                                    |
+| ---------------- | ------------------------------------------------------------------------------ |
+| blueprints       | Schema definitions for content and fragments (configurable per harbor)         |
+| content          | Actual content entries with i18n support (canonical_id groups translations)    |
+| content_versions | Version history for content                                                    |
+| content_refs     | Relationships between content entries (enables composition)                    |
+| content_feedback | Comments/feedback on content fields                                            |
+| workflows        | Workflow state machine definitions                                             |
+
+### Content Model Concepts
+
+| Concept   | Description                                                                                         |
+| --------- | --------------------------------------------------------------------------------------------------- |
+| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)   |
+| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other  |
+| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                     |
+| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting    |
 
 ### Assets
-| Table | Description |
-|-------|-------------|
-| assets | Uploaded files (images, documents, etc.) |
+
+| Table         | Description                              |
+| ------------- | ---------------------------------------- |
+| assets        | Uploaded files (images, documents, etc.) |
 | asset_folders | Hierarchical folder structure for assets |
 
 ### Plugins
-| Table | Description |
-|-------|-------------|
-| plugins | Available plugins in the system |
+
+| Table          | Description                              |
+| -------------- | ---------------------------------------- |
+| plugins        | Available plugins in the system          |
 | harbor_plugins | Plugins enabled per harbor with settings |
 
 ### Event Sourcing
-| Table | Description |
-|-------|-------------|
-| events | Event log for all changes |
-| snapshots | Aggregate state snapshots |
+
+| Table        | Description                   |
+| ------------ | ----------------------------- |
+| events       | Event log for all changes     |
+| snapshots    | Aggregate state snapshots     |
 | sync_cursors | Client sync position tracking |
 
 ### Authentication (Better Auth)
-| Table | Description |
-|-------|-------------|
-| user | User accounts |
-| session | Active sessions |
-| account | OAuth provider accounts |
-| refresh_tokens | Token refresh tracking |
+
+| Table          | Description             |
+| -------------- | ----------------------- |
+| user           | User accounts           |
+| session        | Active sessions         |
+| account        | OAuth provider accounts |
+| refresh_tokens | Token refresh tracking  |
 
 ### API Access
-| Table | Description |
-|-------|-------------|
+
+| Table    | Description                      |
+| -------- | -------------------------------- |
 | api_keys | API keys for programmatic access |
