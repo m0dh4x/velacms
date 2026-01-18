@@ -1,7 +1,15 @@
 {
-  "name": "@vela/database",
-  "private": true,
-  "exports": {
-    ".": "./src/index.ts"
-  }
+	"name": "@vela/db",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./migrate": "./src/migrate/index.ts"
+	},
+	"scripts": {
+		"migrate": "bun ./src/migrate/cli.ts",
+		"migrate:up": "bun ./src/migrate/cli.ts up",
+		"migrate:down": "bun ./src/migrate/cli.ts down",
+		"migrate:status": "bun ./src/migrate/cli.ts status",
+		"migrate:create": "bun ./src/migrate/cli.ts create"
+	}
 }
