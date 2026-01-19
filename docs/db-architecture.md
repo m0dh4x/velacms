@@ -350,7 +350,6 @@ erDiagram
 | -------- | -------------------------------- |
 | api_keys | API keys for programmatic access |
 
-
 ## Content Model Concepts
 
 | Concept   | Description                                                                                        |
