@@ -23,8 +23,7 @@ export const up = (db: Database) => {
 			user_agent TEXT,
 			created_at TEXT NOT NULL DEFAULT (datetime('now')),
 			updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-		)
-	`);
+		)`);
 
 	db.run(`
 		CREATE TABLE account (
@@ -41,8 +40,7 @@ export const up = (db: Database) => {
 			password TEXT,
 			created_at TEXT NOT NULL DEFAULT (datetime('now')),
 			updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-		)
-	`);
+		)`);
 
 	db.run(`
 		CREATE TABLE verification (
@@ -52,8 +50,7 @@ export const up = (db: Database) => {
 			expires_at TEXT NOT NULL,
 			created_at TEXT NOT NULL DEFAULT (datetime('now')),
 			updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-		)
-	`);
+		)`);
 };
 
 export const down = (db: Database) => {
