@@ -399,15 +399,16 @@ Roles are **custom and per-tenant**. Each harbor and organization can define the
 
 **Harbor Roles:**
 
-| Role    | Description                                           |
-| ------- | ----------------------------------------------------- |
-| admin   | Full control over harbor settings, users, and content |
-| editor  | Can create, edit, and delete content                  |
-| viewer  | Read-only access to content                           |
+| Role   | Description                                           |
+| ------ | ----------------------------------------------------- |
+| admin  | Full control over harbor settings, users, and content |
+| editor | Can create, edit, and delete content                  |
+| viewer | Read-only access to content                           |
 
 **Organization Membership:**
 
 Organizations use a simple `is_owner` flag instead of roles:
+
 - **Owner** (`is_owner = true`) — can manage the org, create harbors, invite users
 - **Member** (`is_owner = false`) — can access harbors they are assigned to
 
@@ -415,28 +416,28 @@ Organizations use a simple `is_owner` flag instead of roles:
 
 ```json
 {
-  "content": {
-    "create": true,
-    "read": true,
-    "update": true,
-    "delete": false,
-    "publish": false
-  },
-  "assets": {
-    "create": true,
-    "read": true,
-    "update": true,
-    "delete": false
-  },
-  "blueprints": {
-    "manage": false
-  },
-  "users": {
-    "manage": false
-  },
-  "settings": {
-    "manage": false
-  }
+	"content": {
+		"create": true,
+		"read": true,
+		"update": true,
+		"delete": false,
+		"publish": false
+	},
+	"assets": {
+		"create": true,
+		"read": true,
+		"update": true,
+		"delete": false
+	},
+	"blueprints": {
+		"manage": false
+	},
+	"users": {
+		"manage": false
+	},
+	"settings": {
+		"manage": false
+	}
 }
 ```
 
@@ -446,9 +447,9 @@ The `harbor_users.permissions` field allows granular overrides for specific user
 
 ```json
 {
-  "blueprints": ["blog-post", "product"],
-  "can_publish": true,
-  "can_delete": false
+	"blueprints": ["blog-post", "product"],
+	"can_publish": true,
+	"can_delete": false
 }
 ```
 

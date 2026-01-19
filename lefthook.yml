@@ -2,9 +2,9 @@ pre-commit:
   parallel: true
   commands:
     format:
-      glob: "*.{ts,tsx,js,jsx,vue,json}"
+      glob: '*.{ts,tsx,js,jsx,vue,json}'
       run: bun run oxfmt {staged_files}
       stage_fixed: true
     lint:
-      glob: "*.{ts,tsx,js,jsx,vue}"
+      glob: '*.{ts,tsx,js,jsx,vue}'
       run: bun run oxlint {staged_files}
