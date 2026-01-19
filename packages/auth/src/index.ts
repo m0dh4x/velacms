@@ -1,11 +1,11 @@
-import { db } from "@vela/db";
-import { betterAuth } from "better-auth";
+import { db } from '@vela/db';
+import { betterAuth } from 'better-auth';
 
 export const auth = betterAuth({
-  database: db,
-  emailAndPassword: {
-    enabled: true,
-  },
+	database: db,
+	emailAndPassword: {
+		enabled: true,
+	},
 });
 
 export type Session = typeof auth.$Infer.Session;

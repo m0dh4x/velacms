@@ -18,7 +18,7 @@ export function createMigrationRunner(db: Database, migrationsPath: string) {
 	 * Tracks which migrations have been applied.
 	 */
 	const ensureMigrationsTable = () => {
-	  db.run(`
+		db.run(`
         CREATE TABLE IF NOT EXISTS migrations (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         name TEXT NOT NULL UNIQUE,

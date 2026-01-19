@@ -1,12 +1,12 @@
 {
-  "name": "@vela/auth",
-  "private": true,
-  "exports": {
-    ".": "./src/index.ts",
-    "./client": "./src/client.ts"
-  },
-  "dependencies": {
-    "@vela/database": "workspace:*",
-    "better-auth": "^1"
-  }
+	"name": "@vela/auth",
+	"private": true,
+	"exports": {
+		".": "./src/index.ts",
+		"./client": "./src/client.ts"
+	},
+	"dependencies": {
+		"@vela/db": "workspace:*",
+		"better-auth": "^1"
+	}
 }
