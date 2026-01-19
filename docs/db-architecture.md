@@ -8,17 +8,21 @@ Vela CMS database schema with multi-tenancy, content management, event sourcing,
 erDiagram
     %% ===== MULTI-TENANCY =====
     organizations |o--o{ harbors : "optionally groups"
-    organizations ||--o{ organization_users : "has many"
+    organizations ||--o{ organization_members : "has members"
 
-    harbors ||--o{ harbor_users : "has many"
-    harbors ||--o{ harbor_locales : "has many"
-    harbors ||--o{ blueprints : "has many"
-    harbors ||--o{ content : "has many"
-    harbors ||--o{ workflows : "has many"
-    harbors ||--o{ assets : "has many"
-    harbors ||--o{ asset_folders : "has many"
-    harbors ||--o{ api_keys : "has many"
-    harbors ||--o{ harbor_plugins : "has many"
+    harbors ||--o{ harbor_roles : "has roles"
+    harbors ||--o{ harbor_members : "has members"
+    harbors ||--o{ harbor_locales : "has locales"
+    harbors ||--o{ blueprints : "has blueprints"
+    harbors ||--o{ content : "has content"
+    harbors ||--o{ workflows : "has workflows"
+    harbors ||--o{ assets : "has assets"
+    harbors ||--o{ asset_folders : "has folders"
+    harbors ||--o{ api_keys : "has api keys"
+    harbors ||--o{ harbor_plugins : "has plugins"
+
+    %% ===== ROLES =====
+    harbor_roles ||--o{ harbor_members : "assigned to"
 
     %% ===== CONTENT SYSTEM =====
     blueprints ||--o{ content : "defines"
@@ -36,9 +40,8 @@ erDiagram
     %% ===== AUTH (Better Auth) =====
     user ||--o{ session : "has sessions"
     user ||--o{ account : "has accounts"
-    user ||--o{ harbor_users : "member of"
-    user ||--o{ organization_users : "member of"
-    user ||--o{ refresh_tokens : "has tokens"
+    user ||--o{ harbor_members : "member of harbors"
+    user ||--o{ organization_members : "member of orgs"
 
     %% ===== EVENT SOURCING =====
     harbors ||--o{ events : "harbor-scoped events"
@@ -66,20 +69,33 @@ erDiagram
         datetime updated_at
     }
 
-    harbor_users {
+    harbor_roles {
+        text id PK
+        text harbor_id FK
+        text name
+        text slug
+        text description
+        json permissions
+        boolean is_system
+        datetime created_at
+        datetime updated_at
+    }
+
+    harbor_members {
         text id PK
         text user_id FK
         text harbor_id FK
-        text role
-        json permissions
+        text role_id FK
+        json permissions "per-user overrides"
         datetime created_at
+        datetime updated_at
     }
 
-    organization_users {
+    organization_members {
         text id PK
         text user_id FK
         text organization_id FK
-        text role
+        boolean is_owner
         datetime created_at
     }
 
@@ -120,8 +136,8 @@ erDiagram
         text workflow_state
         integer version
         datetime published_at
-        text created_by
-        text updated_by
+        text created_by FK
+        text updated_by FK
         datetime created_at
         datetime updated_at
     }
@@ -131,7 +147,7 @@ erDiagram
         text content_id FK
         integer version
         json data
-        text created_by
+        text created_by FK
         datetime created_at
     }
 
@@ -225,15 +241,6 @@ erDiagram
         datetime created_at
     }
 
-    refresh_tokens {
-        text id PK
-        text user_id FK
-        text harbor_id FK
-        text token_hash UK
-        datetime expires_at
-        datetime created_at
-    }
-
     events {
         text id PK
         text aggregate_type
@@ -265,8 +272,8 @@ erDiagram
         text id PK
         text name
         text email UK
+        boolean email_verified
         text image
-        text role
         datetime created_at
         datetime updated_at
     }
@@ -274,19 +281,37 @@ erDiagram
     session {
         text id PK
         text user_id FK
-        text token
+        text token UK
         datetime expires_at
         text ip_address
         text user_agent
+        datetime created_at
+        datetime updated_at
     }
 
     account {
         text id PK
         text user_id FK
-        text provider
-        text provider_account_id
+        text account_id
+        text provider_id
         text access_token
         text refresh_token
+        datetime access_token_expires_at
+        datetime refresh_token_expires_at
+        text scope
+        text id_token
+        text password
+        datetime created_at
+        datetime updated_at
+    }
+
+    verification {
+        text id PK
+        text identifier
+        text value
+        datetime expires_at
+        datetime created_at
+        datetime updated_at
     }
 ```
 
@@ -294,13 +319,14 @@ erDiagram
 
 ### Multi-Tenancy
 
-| Table              | Description                                                |
-| ------------------ | ---------------------------------------------------------- |
-| organizations      | Optional grouping of harbors (enterprise feature)          |
-| harbors            | Main tenant unit - each harbor is an isolated CMS instance |
-| harbor_users       | User membership and roles within a harbor                  |
-| organization_users | User membership within an organization                     |
-| harbor_locales     | Locale/language configuration per harbor                   |
+| Table                | Description                                                |
+| -------------------- | ---------------------------------------------------------- |
+| organizations        | Optional grouping of harbors (enterprise feature)          |
+| harbors              | Main tenant unit - each harbor is an isolated CMS instance |
+| harbor_roles         | Custom roles defined per harbor                            |
+| harbor_members       | User membership and role assignment within a harbor        |
+| organization_members | User membership within an organization (owner or member)   |
+| harbor_locales       | Locale/language configuration per harbor                   |
 
 ### Content System
 
@@ -312,6 +338,15 @@ erDiagram
 | content_refs     | Relationships between content entries (enables composition)                 |
 | content_feedback | Comments/feedback on content fields                                         |
 | workflows        | Workflow state machine definitions                                          |
+
+### Content Model Concepts
+
+| Concept   | Description                                                                                        |
+| --------- | -------------------------------------------------------------------------------------------------- |
+| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
+| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
+| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
+| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
 
 ### Assets
 
@@ -337,12 +372,12 @@ erDiagram
 
 ### Authentication (Better Auth)
 
-| Table          | Description             |
-| -------------- | ----------------------- |
-| user           | User accounts           |
-| session        | Active sessions         |
-| account        | OAuth provider accounts |
-| refresh_tokens | Token refresh tracking  |
+| Table        | Description                                  |
+| ------------ | -------------------------------------------- |
+| user         | User accounts (managed by Better Auth)       |
+| session      | Active sessions with tokens                  |
+| account      | OAuth provider accounts and email/password   |
+| verification | Email verification and password reset tokens |
 
 ### API Access
 
@@ -350,11 +385,71 @@ erDiagram
 | -------- | -------------------------------- |
 | api_keys | API keys for programmatic access |
 
-## Content Model Concepts
+## Roles & Permissions
 
-| Concept   | Description                                                                                        |
-| --------- | -------------------------------------------------------------------------------------------------- |
-| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
-| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
-| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
-| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
+### How Roles Work
+
+Roles are **custom and per-tenant**. Each harbor and organization can define their own roles with specific permissions.
+
+- `harbor_roles` — roles scoped to a single harbor
+- `organization_roles` — roles scoped to an organization (applies across harbors)
+- `is_system` — marks built-in roles that cannot be deleted
+
+### Default System Roles (created when harbor/org is created)
+
+**Harbor Roles:**
+
+| Role    | Description                                           |
+| ------- | ----------------------------------------------------- |
+| admin   | Full control over harbor settings, users, and content |
+| editor  | Can create, edit, and delete content                  |
+| viewer  | Read-only access to content                           |
+
+**Organization Membership:**
+
+Organizations use a simple `is_owner` flag instead of roles:
+- **Owner** (`is_owner = true`) — can manage the org, create harbors, invite users
+- **Member** (`is_owner = false`) — can access harbors they are assigned to
+
+### Permissions JSON Structure
+
+```json
+{
+  "content": {
+    "create": true,
+    "read": true,
+    "update": true,
+    "delete": false,
+    "publish": false
+  },
+  "assets": {
+    "create": true,
+    "read": true,
+    "update": true,
+    "delete": false
+  },
+  "blueprints": {
+    "manage": false
+  },
+  "users": {
+    "manage": false
+  },
+  "settings": {
+    "manage": false
+  }
+}
+```
+
+### Per-User Overrides
+
+The `harbor_users.permissions` field allows granular overrides for specific users:
+
+```json
+{
+  "blueprints": ["blog-post", "product"],
+  "can_publish": true,
+  "can_delete": false
+}
+```
+
+Effective permissions = role permissions merged with user-specific overrides.
