@@ -48,6 +48,9 @@
     },
     "packages/db": {
       "name": "@vela/db",
+      "dependencies": {
+        "@vela/auth": "workspace:*",
+      },
     },
   },
   "packages": {

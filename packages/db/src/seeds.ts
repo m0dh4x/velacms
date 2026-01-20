@@ -1,7 +1,7 @@
 import { db } from './index';
-import { nanoid } from 'nanoid';
+import { auth } from '@vela/auth';
 
-export function seed() {
+export async function seed() {
 	// eslint-disable-next-line no-console
 	console.log('Seeding the database ...\n');
 
@@ -15,13 +15,21 @@ export function seed() {
 		return;
 	}
 
-	db.run(
-		`INSERT INTO user (id, name, email, email_verified, created_at, updated_at)
-		 VALUES (?, ?, ?, ?, datetime('now'), datetime('now'))`,
-		[nanoid(), 'Admin User', 'admin@velacms.local', 1],
-	);
+	if (!process.env.SEED_PASSWORD) {
+		// eslint-disable-next-line no-console
+		console.log('.env with SEED_PASSWORD is missing');
+		return;
+	}
+
+	await auth.api.signUpEmail({
+		body: {
+			email: 'admin@velacms.local',
+			password: process.env.SEED_PASSWORD,
+			name: 'Admin user',
+		},
+	});
 	// eslint-disable-next-line no-console
 	console.log('Created user: Admin User: admin@velacms.local');
 }
 
-seed();
+await seed();

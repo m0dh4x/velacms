@@ -11,6 +11,6 @@
 		"migrate:down": "bun ./src/migrate/cli.ts down",
 		"migrate:status": "bun ./src/migrate/cli.ts status",
 		"migrate:create": "bun ./src/migrate/cli.ts create",
-		"seed:data": "bun ./src/seeds.ts"
+		"seed": "bun ./src/seeds.ts"
 	}
 }
