@@ -272,46 +272,46 @@ erDiagram
         text id PK
         text name
         text email UK
-        boolean email_verified
+        boolean emailVerified
         text image
-        datetime created_at
-        datetime updated_at
+        datetime createdAt
+        datetime updatedAt
     }
 
     session {
         text id PK
-        text user_id FK
+        text userId FK
         text token UK
-        datetime expires_at
-        text ip_address
-        text user_agent
-        datetime created_at
-        datetime updated_at
+        datetime expiresAt
+        text ipAddress
+        text userAgent
+        datetime createdAt
+        datetime updatedAt
     }
 
     account {
         text id PK
         text user_id FK
-        text account_id
-        text provider_id
-        text access_token
-        text refresh_token
-        datetime access_token_expires_at
-        datetime refresh_token_expires_at
+        text accountId
+        text providerId
+        text accessToken
+        text refreshToken
+        datetime accessTokenExpiresAt
+        datetime refreshTokenExpiresAt
         text scope
-        text id_token
+        text idToken
         text password
-        datetime created_at
-        datetime updated_at
+        datetime createdAt
+        datetime updatedAt
     }
 
     verification {
         text id PK
         text identifier
         text value
-        datetime expires_at
-        datetime created_at
-        datetime updated_at
+        datetime expiresAt
+        datetime createdAt
+        datetime updatedAt
     }
 ```
 

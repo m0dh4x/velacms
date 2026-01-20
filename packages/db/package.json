@@ -10,6 +10,7 @@
 		"migrate:up": "bun ./src/migrate/cli.ts up",
 		"migrate:down": "bun ./src/migrate/cli.ts down",
 		"migrate:status": "bun ./src/migrate/cli.ts status",
-		"migrate:create": "bun ./src/migrate/cli.ts create"
+		"migrate:create": "bun ./src/migrate/cli.ts create",
+		"seed:data": "bun ./src/seeds.ts"
 	}
 }
