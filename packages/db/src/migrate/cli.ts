@@ -1,3 +1,5 @@
+/* oxlint-disable no-console*/
+
 /**
  * CLI for running database migrations.
  *
@@ -145,7 +147,6 @@ export const down = (db: Database) => {
 `;
 
 		await writeFile(filepath, template);
-		// oxlint-disable-next-line no-console
 		console.log(`Created ${filename}`);
 	},
 };
@@ -171,7 +172,6 @@ const run = async () => {
 
 // Run the CLI and handle any errors
 run().catch((err) => {
-	// oxlint-disable-next-line no-console
 	console.error(err);
 	process.exit(1);
 });
