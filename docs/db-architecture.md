@@ -242,19 +242,21 @@ erDiagram
     }
 
     events {
-        text id PK
+        integer sequence PK "auto-increment for sync"
+        text id UK
+        text harbor_id FK
         text aggregate_type
         text aggregate_id
         text event_type
+        integer version "per-aggregate for concurrency"
         json payload
         json metadata
         datetime created_at
     }
 
     snapshots {
-        text id PK
-        text aggregate_type
-        text aggregate_id
+        text aggregate_type PK
+        text aggregate_id PK
         integer version
         json state
         datetime created_at
@@ -264,8 +266,8 @@ erDiagram
         text id PK
         text harbor_id FK
         text client_id
-        text last_event_id
-        datetime last_sync_at
+        integer last_sequence
+        datetime last_synced_at
     }
 
     user {
@@ -364,11 +366,11 @@ erDiagram
 
 ### Event Sourcing
 
-| Table        | Description                   |
-| ------------ | ----------------------------- |
-| events       | Event log for all changes     |
-| snapshots    | Aggregate state snapshots     |
-| sync_cursors | Client sync position tracking |
+| Table        | Description                                                                 |
+| ------------ | --------------------------------------------------------------------------- |
+| events       | Append-only event log with `sequence` for sync and `version` for concurrency |
+| snapshots    | Cached aggregate state to avoid replaying thousands of events               |
+| sync_cursors | Tracks `last_sequence` per client for real-time sync                        |
 
 ### Authentication (Better Auth)
 
