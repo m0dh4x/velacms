@@ -366,11 +366,11 @@ erDiagram
 
 ### Event Sourcing
 
-| Table        | Description                                                                 |
-| ------------ | --------------------------------------------------------------------------- |
+| Table        | Description                                                                  |
+| ------------ | ---------------------------------------------------------------------------- |
 | events       | Append-only event log with `sequence` for sync and `version` for concurrency |
-| snapshots    | Cached aggregate state to avoid replaying thousands of events               |
-| sync_cursors | Tracks `last_sequence` per client for real-time sync                        |
+| snapshots    | Cached aggregate state to avoid replaying thousands of events                |
+| sync_cursors | Tracks `last_sequence` per client for real-time sync                         |
 
 ### Authentication (Better Auth)
 
