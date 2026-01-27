@@ -7,5 +7,5 @@
 	"singleQuote": true,
 	"trailingComma": "all",
 	"insertFinalNewline": true,
-	"ignorePatterns": ["node_modules", "dist", "*.d.ts", "data", "bun.lock"]
+	"ignorePatterns": ["node_modules", "dist", "*.d.ts", "data", "bun.lock"],
 }
