@@ -22,4 +22,5 @@ export default {
 	fetch: app.fetch,
 };
 
+// oxlint-disable-next-line no-console
 console.log('🚀 Vela CMS API running on http://localhost:3000');

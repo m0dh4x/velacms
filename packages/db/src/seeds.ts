@@ -28,7 +28,7 @@ export async function seed() {
 			name: 'Admin user',
 		},
 	});
-	// eslint-disable-next-line no-console
+	// oxlint-disable-next-line no-console
 	console.log('Created user: Admin User: admin@velacms.local');
 }
 
