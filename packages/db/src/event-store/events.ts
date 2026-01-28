@@ -47,14 +47,15 @@ export const getEvents = (
 	db: Database,
 	aggregateType: string,
 	aggregateId: string,
+	fromVersion?: number,
 ): StoredEvent[] => {
-	const statement = db.prepare<EventRow, [string, string]>(`
+	const statement = db.prepare<EventRow, [string, string, number]>(`
     SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, event_type, version, payload, metadata, created_at
-    FROM events WHERE aggregate_type = ?  AND aggregate_id = ?
+    FROM events WHERE aggregate_type = ?  AND aggregate_id = ? AND version > ?
     ORDER BY version ASC
   `);
 
-	const rows = statement.all(aggregateType, aggregateId);
+	const rows = statement.all(aggregateType, aggregateId, fromVersion ?? 0);
 
 	return rows.map(mapRowToEvent);
 };
