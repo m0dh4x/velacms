@@ -49,7 +49,7 @@ export const getEvents = (
 	aggregateId: string,
 ): StoredEvent[] => {
 	const statement = db.prepare<EventRow, [string, string]>(`
-    SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, eventType, version, payload, metadata, created_at
+    SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, event_type, version, payload, metadata, created_at
     FROM events WHERE aggregate_type = ?  AND aggregate_id = ?
     ORDER BY version ASC
   `);
@@ -61,7 +61,7 @@ export const getEvents = (
 
 export const getEventByType = (db: Database, eventType: string, limit?: number): StoredEvent[] => {
 	const statement = db.prepare<EventRow, [string, number]>(`
-    SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, eventType, version, payload, metadata, created_at
+    SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, event_type, version, payload, metadata, created_at
     FROM events WHERE event_type = ? ORDER BY version ASC
     LIMIT ?
   `);
