@@ -66,3 +66,26 @@ export const getEvents = (
 		createdAt: row.created_at,
 	}));
 };
+
+export const getEventByType = (db: Database, eventType: string, limit?: number): StoredEvent[] => {
+	const statement = db.prepare<EventRow, [string, number]>(`
+    SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, eventType, version, payload, metadata, created_at
+    FROM events WHERE eventType = ? ORDER BY version ASC
+    LIMIT ?
+  `);
+
+	const rows = statement.all(eventType, limit ?? 1000);
+
+	return rows.map((row) => ({
+		sequence: row.sequence,
+		id: row.id,
+		harborId: row.harbor_id,
+		aggregateType: row.aggregate_type,
+		aggregateId: row.aggregate_id,
+		eventType: row.event_type,
+		version: row.version,
+		payload: JSON.parse(row.payload),
+		metadata: row.metadata ? JSON.parse(row.metadata) : null,
+		createdAt: row.created_at,
+	}));
+};
