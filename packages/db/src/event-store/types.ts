@@ -18,8 +18,22 @@ export type StoredEvent = {
 	eventType: string;
 	version: number;
 	payload: unknown;
-	metadata?: unknown | null;
+	metadata: unknown | null;
 	createdAt: string;
+};
+
+// Type for DB Result cause of snakecase
+export type EventRow = {
+	sequence: number;
+	id: string;
+	harbor_id: string | null;
+	aggregate_type: string;
+	aggregate_id: string;
+	event_type: string;
+	version: number;
+	payload: string;
+	metadata: string | null;
+	created_at: string;
 };
 
 export type Snapshot = {
