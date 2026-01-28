@@ -9,7 +9,7 @@ export type NewEvent = {
 	metadata?: unknown;
 };
 
-export type StoredEvent = {
+export type StoredEvent = Readonly<{
 	sequence: number;
 	id: string;
 	harborId: string | null;
@@ -20,7 +20,7 @@ export type StoredEvent = {
 	payload: unknown;
 	metadata: unknown | null;
 	createdAt: string;
-};
+}>;
 
 // Type for DB Result cause of snakecase
 export type EventRow = {
@@ -45,10 +45,10 @@ export type SnapshotRow = {
 	created_at: string;
 };
 
-export type Snapshot = {
+export type Snapshot = Readonly<{
 	aggregateType: string;
 	aggregateId: string;
 	version: number;
 	state: unknown;
 	createdAt: string;
-};
+}>;
