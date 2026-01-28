@@ -1,6 +1,20 @@
 import type { Database } from 'bun:sqlite';
 import type { EventRow, NewEvent, StoredEvent } from './types';
 
+// helper function to map event row data to stored event data
+const mapRowToEvent = (row: EventRow): StoredEvent => ({
+	sequence: row.sequence,
+	id: row.id,
+	harborId: row.harbor_id,
+	aggregateType: row.aggregate_type,
+	aggregateId: row.aggregate_id,
+	eventType: row.event_type,
+	version: row.version,
+	payload: JSON.parse(row.payload),
+	metadata: row.metadata ? JSON.parse(row.metadata) : null,
+	createdAt: row.created_at,
+});
+
 export const appendEvent = (db: Database, event: NewEvent): StoredEvent => {
 	const statement = db.prepare<
 		EventRow,
@@ -26,18 +40,7 @@ export const appendEvent = (db: Database, event: NewEvent): StoredEvent => {
 		throw new Error(`Failed to append event: ${event.id}`);
 	}
 
-	return {
-		sequence: result.sequence,
-		id: result.id,
-		harborId: result.harbor_id,
-		aggregateType: result.aggregate_type,
-		aggregateId: result.aggregate_id,
-		eventType: result.event_type,
-		version: result.version,
-		payload: JSON.parse(result.payload),
-		metadata: result.metadata ? JSON.parse(result.metadata) : null,
-		createdAt: result.created_at,
-	};
+	return mapRowToEvent(result);
 };
 
 export const getEvents = (
@@ -47,45 +50,24 @@ export const getEvents = (
 ): StoredEvent[] => {
 	const statement = db.prepare<EventRow, [string, string]>(`
     SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, eventType, version, payload, metadata, created_at
-    FROM events WHERE aggregate_type = ?  AND aggregate_id = ? AND version = ?
+    FROM events WHERE aggregate_type = ?  AND aggregate_id = ?
     ORDER BY version ASC
   `);
 
 	const rows = statement.all(aggregateType, aggregateId);
 
-	return rows.map((row) => ({
-		sequence: row.sequence,
-		id: row.id,
-		harborId: row.harbor_id,
-		aggregateType: row.aggregate_type,
-		aggregateId: row.aggregate_id,
-		eventType: row.event_type,
-		version: row.version,
-		payload: JSON.parse(row.payload),
-		metadata: row.metadata ? JSON.parse(row.metadata) : null,
-		createdAt: row.created_at,
-	}));
+	return rows.map(mapRowToEvent);
 };
 
 export const getEventByType = (db: Database, eventType: string, limit?: number): StoredEvent[] => {
 	const statement = db.prepare<EventRow, [string, number]>(`
     SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, eventType, version, payload, metadata, created_at
-    FROM events WHERE eventType = ? ORDER BY version ASC
+    FROM events WHERE event_type = ? ORDER BY version ASC
     LIMIT ?
   `);
 
-	const rows = statement.all(eventType, limit ?? 1000);
+	// to make limiting optional
+	const rows = statement.all(eventType, limit ?? -1);
 
-	return rows.map((row) => ({
-		sequence: row.sequence,
-		id: row.id,
-		harborId: row.harbor_id,
-		aggregateType: row.aggregate_type,
-		aggregateId: row.aggregate_id,
-		eventType: row.event_type,
-		version: row.version,
-		payload: JSON.parse(row.payload),
-		metadata: row.metadata ? JSON.parse(row.metadata) : null,
-		createdAt: row.created_at,
-	}));
+	return rows.map(mapRowToEvent);
 };
