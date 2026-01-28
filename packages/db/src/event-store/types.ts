@@ -36,6 +36,15 @@ export type EventRow = {
 	created_at: string;
 };
 
+// Type for DB Result cause of snakecase
+export type SnapshotRow = {
+	aggregate_type: string;
+	aggregate_id: string;
+	version: number;
+	state: string;
+	created_at: string;
+};
+
 export type Snapshot = {
 	aggregateType: string;
 	aggregateId: string;
