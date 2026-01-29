@@ -262,4 +262,34 @@ describe('Event Store Integration', () => {
 		expect(state.title).toBe('default');
 		expect(state.slug).toBe('');
 	});
+
+	test('rehydrate sorts events by version even if inserted out of order', () => {
+		// Insert version 2 before version 1 to test ORDER BY
+		db.run(
+			`INSERT INTO events (id, aggregate_type, aggregate_id, event_type, version, payload, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+			['evt-2', 'Page', 'sort-test', 'PageUpdated', 2, JSON.stringify({ title: 'Second' })],
+		);
+
+		db.run(
+			`INSERT INTO events (id, aggregate_type, aggregate_id, event_type, version, payload, created_at)
+			 VALUES (?, ?, ?, ?, ?, ?, datetime('now'))`,
+			['evt-1', 'Page', 'sort-test', 'PageCreated', 1, JSON.stringify({ title: 'First' })],
+		);
+
+		type PageState = { title: string };
+
+		const { state, version } = rehydrateAggregate<PageState>(
+			db,
+			'Page',
+			'sort-test',
+			{ title: '' },
+			(state, event) => ({ ...state, ...(event.payload as any) }),
+		);
+
+		// If ORDER BY version ASC works, "Second" wins (applied last)
+		// If not, "First" would win (inserted last, processed last)
+		expect(version).toBe(2);
+		expect(state.title).toBe('Second');
+	});
 });
