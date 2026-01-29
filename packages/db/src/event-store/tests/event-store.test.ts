@@ -231,4 +231,35 @@ describe('Event Store Integration', () => {
 		expect(state.slug).toBe('home'); // From snapshot
 		expect(state.refs).toHaveLength(1); // From snapshot
 	});
+
+	test('getEvents returns empty array for new aggregate', () => {
+		const events = getEvents(db, 'Page', 'non-existent');
+
+		expect(events).toEqual([]);
+	});
+
+	test('loadSnapshot returns null if not exists', () => {
+		const snapshot = loadSnapshot(db, 'Page', 'non-existent');
+
+		expect(snapshot).toBeNull();
+	});
+
+	test('rehydrate empty aggregate returns initial state', () => {
+		type PageState = {
+			title: string;
+			slug: string;
+		};
+
+		const { state, version } = rehydrateAggregate<PageState>(
+			db,
+			'Page',
+			'non-existent',
+			{ title: 'default', slug: '' },
+			(state) => state,
+		);
+
+		expect(version).toBe(0);
+		expect(state.title).toBe('default');
+		expect(state.slug).toBe('');
+	});
 });
