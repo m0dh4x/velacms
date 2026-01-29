@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { appendEvent } from '../events';
+import { appendEvent, getEvents } from '../events';
+import { saveSnapshot, loadSnapshot } from '../snapshots';
 import { rehydrateAggregate } from '../aggregate';
 
 let db: Database;
@@ -127,5 +128,107 @@ describe('Event Store Integration', () => {
 		expect(state.slug).toBe('home'); // Aus Event 1
 		expect(state.refs).toHaveLength(1); // Aus Event 2
 		expect(state.refs[0]?.fragmentId).toBe('hero-1');
+	});
+
+	test('appendEvent fails on duplicate version', () => {
+		appendEvent(db, {
+			id: 'event-1',
+			harborId: 'harbor-1',
+			aggregateType: 'Page',
+			aggregateId: 'page-home',
+			eventType: 'PageCreated',
+			version: 1,
+			payload: { title: 'Home' },
+		});
+
+		expect(() => {
+			appendEvent(db, {
+				id: 'event-2',
+				harborId: 'harbor-1',
+				aggregateType: 'Page',
+				aggregateId: 'page-home',
+				eventType: 'PageUpdated',
+				version: 1, // Duplicate version!
+				payload: { title: 'Updated' },
+			});
+		}).toThrow();
+	});
+
+	test('getEvents filters by fromVersion', () => {
+		appendEvent(db, {
+			id: 'event-1',
+			aggregateType: 'Page',
+			aggregateId: 'page-home',
+			eventType: 'PageCreated',
+			version: 1,
+			payload: { title: 'Home' },
+		});
+
+		appendEvent(db, {
+			id: 'event-2',
+			aggregateType: 'Page',
+			aggregateId: 'page-home',
+			eventType: 'PageUpdated',
+			version: 2,
+			payload: { title: 'Updated' },
+		});
+
+		appendEvent(db, {
+			id: 'event-3',
+			aggregateType: 'Page',
+			aggregateId: 'page-home',
+			eventType: 'PagePublished',
+			version: 3,
+			payload: {},
+		});
+
+		const events = getEvents(db, 'Page', 'page-home', 1);
+
+		expect(events).toHaveLength(2);
+		expect(events[0]?.version).toBe(2);
+		expect(events[1]?.version).toBe(3);
+	});
+
+	test('rehydrate uses snapshot as starting point', () => {
+		// Snapshot at version 2
+		saveSnapshot(db, 'Page', 'page-home', 2, {
+			title: 'Snapshot Title',
+			slug: 'home',
+			refs: [{ fragmentId: 'hero-1', position: 0 }],
+		});
+
+		// Event after snapshot
+		appendEvent(db, {
+			id: 'event-3',
+			aggregateType: 'Page',
+			aggregateId: 'page-home',
+			eventType: 'PageUpdated',
+			version: 3,
+			payload: { title: 'Updated After Snapshot' },
+		});
+
+		type PageState = {
+			title: string;
+			slug: string;
+			refs: Array<{ fragmentId: string; position: number }>;
+		};
+
+		const { state, version } = rehydrateAggregate<PageState>(
+			db,
+			'Page',
+			'page-home',
+			{ title: '', slug: '', refs: [] },
+			(state, event) => {
+				if (event.eventType === 'PageUpdated') {
+					return { ...state, ...(event.payload as any) };
+				}
+				return state;
+			},
+		);
+
+		expect(version).toBe(3);
+		expect(state.title).toBe('Updated After Snapshot');
+		expect(state.slug).toBe('home'); // From snapshot
+		expect(state.refs).toHaveLength(1); // From snapshot
 	});
 });
