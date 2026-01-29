@@ -292,4 +292,43 @@ describe('Event Store Integration', () => {
 		expect(version).toBe(2);
 		expect(state.title).toBe('Second');
 	});
+
+	test('rehydrate ignores events before snapshot version', () => {
+		// Event before snapshot
+		appendEvent(db, {
+			id: 'event-1',
+			aggregateType: 'Page',
+			aggregateId: 'page-snap',
+			eventType: 'PageCreated',
+			version: 1,
+			payload: { title: 'Old Title' },
+		});
+
+		// Snapshot at version 2
+		saveSnapshot(db, 'Page', 'page-snap', 2, { title: 'Snapshot Title' });
+
+		// Event after snapshot
+		appendEvent(db, {
+			id: 'event-3',
+			aggregateType: 'Page',
+			aggregateId: 'page-snap',
+			eventType: 'PageUpdated',
+			version: 3,
+			payload: { title: 'New Title' },
+		});
+
+		type PageState = { title: string };
+
+		const { state, version } = rehydrateAggregate<PageState>(
+			db,
+			'Page',
+			'page-snap',
+			{ title: '' },
+			(state, event) => ({ ...state, ...(event.payload as any) }),
+		);
+
+		// Event v1 should be ignored, only snapshot + event v3 applied
+		expect(version).toBe(3);
+		expect(state.title).toBe('New Title');
+	});
 });
