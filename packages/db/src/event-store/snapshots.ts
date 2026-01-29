@@ -28,13 +28,19 @@ export const loadSnapshot = (
     `);
 
 	const result = statement.get(aggregateType, aggregateId);
-	if (!result) return null;
 
-	return {
-		aggregateType: result.aggregate_type,
-		aggregateId: result.aggregate_id,
-		version: result.version,
-		state: JSON.parse(result.state),
-		createdAt: result.created_at,
-	};
+	if (!result) return null;
+	try {
+		return {
+			aggregateType: result.aggregate_type,
+			aggregateId: result.aggregate_id,
+			version: result.version,
+			state: JSON.parse(result.state),
+			createdAt: result.created_at,
+		};
+	} catch {
+		// oxlint-disable-next-line no-console
+		console.warn(`Corrupted snapshot for ${aggregateType}-${aggregateId}: Invalid JSON`);
+		return null;
+	}
 };

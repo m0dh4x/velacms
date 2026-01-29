@@ -244,6 +244,18 @@ describe('Event Store Integration', () => {
 		expect(snapshot).toBeNull();
 	});
 
+	test('loadSnapshot returns null and logs error invalid JSON', () => {
+		db.run(
+			`
+      INSERT INTO snapshots (aggregate_type, aggregate_id, version, state, created_at)
+      VALUES (?,?,?,?, datetime('now'))`,
+			['Page', 'invalid-json', 1, 'invalid-json{'],
+		);
+
+		const snapshot = loadSnapshot(db, 'Page', 'invalid-json');
+		expect(snapshot).toBeNull();
+	});
+
 	test('rehydrate empty aggregate returns initial state', () => {
 		type PageState = {
 			title: string;
