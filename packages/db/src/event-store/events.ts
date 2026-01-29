@@ -43,6 +43,7 @@ export const appendEvent = (db: Database, event: NewEvent): StoredEvent => {
 	return mapRowToEvent(result);
 };
 
+// fromVersion is exclusive: returns events with version > fromVersion
 export const getEvents = (
 	db: Database,
 	aggregateType: string,
