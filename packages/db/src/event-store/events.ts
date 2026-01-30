@@ -61,7 +61,7 @@ export const getEvents = (
 	return rows.map(mapRowToEvent);
 };
 
-export const getEventByType = (db: Database, eventType: string, limit?: number): StoredEvent[] => {
+export const getEventsByType = (db: Database, eventType: string, limit?: number): StoredEvent[] => {
 	const statement = db.prepare<EventRow, [string, number]>(`
     SELECT sequence, id, harbor_id, aggregate_type, aggregate_id, event_type, version, payload, metadata, created_at
     FROM events WHERE event_type = ? ORDER BY version ASC
