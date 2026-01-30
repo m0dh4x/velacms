@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { appendEvent, getEvents } from '../events';
+import { appendEvent, getEventsByType, getEvents } from '../events';
 import { saveSnapshot, loadSnapshot } from '../snapshots';
 import { rehydrateAggregate } from '../aggregate';
 
@@ -131,6 +131,56 @@ describe('Event Store Integration', () => {
 			expect(events).toHaveLength(2);
 			expect(events[0]?.version).toBe(2);
 			expect(events[1]?.version).toBe(3);
+		});
+
+		test('get events by type', () => {
+			appendEvent(db, {
+				id: 'event-1',
+				aggregateType: 'Page',
+				aggregateId: 'page-home',
+				eventType: 'PageCreated',
+				version: 1,
+				payload: { title: 'Home' },
+			});
+
+			appendEvent(db, {
+				id: 'event-2',
+				aggregateType: 'Page',
+				aggregateId: 'page-home',
+				eventType: 'PageUpdated',
+				version: 2,
+				payload: { title: 'Home alone' },
+			});
+
+			appendEvent(db, {
+				id: 'event-3',
+				aggregateType: 'Page',
+				aggregateId: 'page-about',
+				eventType: 'PageCreated',
+				version: 2,
+				payload: { title: 'About me' },
+			});
+
+			appendEvent(db, {
+				id: 'event-4',
+				aggregateType: 'Page',
+				aggregateId: 'page-impressum',
+				eventType: 'PageCreated',
+				version: 3,
+				payload: { title: 'Impressum' },
+			});
+
+			const events = getEventsByType(db, 'PageCreated');
+
+			expect(events).toHaveLength(3);
+			expect(events[0]?.aggregateId).toBe('page-home');
+			expect(events[1]?.aggregateId).toBe('page-about');
+			expect(events[2]?.aggregateId).toBe('page-impressum');
+
+			const limited = getEventsByType(db, 'PageCreated', 1);
+
+			expect(limited).toHaveLength(1);
+			expect(limited[0]?.aggregateId).toBe('page-home');
 		});
 	});
 
