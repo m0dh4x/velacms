@@ -116,7 +116,7 @@ erDiagram
         text slug
         text description
         text icon
-        text type "content or fragment"
+        text type "fragment or entity"
         json schema
         json settings
         integer version
@@ -334,7 +334,7 @@ erDiagram
 
 | Table            | Description                                                                 |
 | ---------------- | --------------------------------------------------------------------------- |
-| blueprints       | Schema definitions for content and fragments (configurable per harbor)      |
+| blueprints       | Schema definitions for fragments and entities (configurable per harbor)     |
 | content          | Actual content entries with i18n support (canonical_id groups translations) |
 | content_versions | Version history for content                                                 |
 | content_refs     | Relationships between content entries (enables composition)                 |
@@ -343,12 +343,12 @@ erDiagram
 
 ### Content Model Concepts
 
-| Concept   | Description                                                                                        |
-| --------- | -------------------------------------------------------------------------------------------------- |
-| Blueprint | Defines the structure/schema for content. Type is `content` (standalone) or `fragment` (reusable)  |
-| Content   | An entry based on a blueprint. Entries with the same `canonical_id` are translations of each other |
-| Fragment  | A reusable content piece referenced by other content (e.g., Hero, Feature Card)                    |
-| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting   |
+| Concept   | Description                                                                                      |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| Blueprint | Defines the structure/schema for content. Type is `fragment` (owned) or `entity` (standalone)    |
+| Fragment  | A content piece owned by its parent (e.g., Hero on Homepage). Deleted when parent is deleted.    |
+| Entity    | Standalone content that exists independently (e.g., Author, Product). Referenced by many.        |
+| Reference | A link from one content to another via `content_refs`, enabling composition without deep nesting |
 
 ### Assets
 
