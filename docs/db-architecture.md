@@ -26,7 +26,6 @@ erDiagram
 
     %% ===== CONTENT SYSTEM =====
     blueprints ||--o{ content : "defines"
-    content ||--o{ content_versions : "has versions"
     content ||--o{ content_refs : "references"
     content ||--o{ content_feedback : "has feedback"
 
@@ -140,15 +139,6 @@ erDiagram
         text updated_by FK
         datetime created_at
         datetime updated_at
-    }
-
-    content_versions {
-        text id PK
-        text content_id FK
-        integer version
-        json data
-        text created_by FK
-        datetime created_at
     }
 
     content_refs {
@@ -332,14 +322,13 @@ erDiagram
 
 ### Content System
 
-| Table            | Description                                                                 |
-| ---------------- | --------------------------------------------------------------------------- |
-| blueprints       | Schema definitions for fragments and entities (configurable per harbor)     |
-| content          | Actual content entries with i18n support (canonical_id groups translations) |
-| content_versions | Version history for content                                                 |
-| content_refs     | Relationships between content entries (enables composition)                 |
-| content_feedback | Comments/feedback on content fields                                         |
-| workflows        | Workflow state machine definitions                                          |
+| Table            | Description                                                              |
+| ---------------- | ------------------------------------------------------------------------ |
+| blueprints       | Schema definitions for fragments and entities (configurable per harbor)  |
+| content          | Read model projected from events. Stores current state for fast queries. |
+| content_refs     | Entity references between content. Projected from events.                |
+| content_feedback | Comments/feedback on content fields                                      |
+| workflows        | Workflow state machine definitions                                       |
 
 ### Content Model Concepts
 
