@@ -1,6 +1,6 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { appendEvent, getEventsByType, getEvents } from './events';
+import { appendEvent, getEventsByType, getEvents, getNextVersion } from './events';
 import { saveSnapshot, loadSnapshot } from './snapshots';
 import { rehydrateAggregate } from './aggregate';
 
@@ -35,6 +35,18 @@ beforeEach(() => {
 			PRIMARY KEY (aggregate_type, aggregate_id)
 		)
 	`);
+
+	db.run(`
+    CREATE TABLE IF NOT EXISTS harbors (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      slug TEXT NOT NULL UNIQUE,
+      settings TEXT NOT NULL DEFAULT '{}',
+      organization_id TEXT,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
 });
 
 describe('Event Store Integration', () => {
@@ -433,6 +445,35 @@ describe('Event Store Integration', () => {
 			// If not, "First" would win (inserted last, processed last)
 			expect(version).toBe(2);
 			expect(state.title).toBe('Second');
+		});
+	});
+
+	describe('getNextVersion', () => {
+		test('returns 1 for new aggregate', () => {
+			const version = getNextVersion(db, 'Page', 'new-aggregate_id');
+			expect(version).toBe(1);
+		});
+
+		test('returns next version after last event', () => {
+			db.prepare('INSERT INTO harbors (id, name, slug, settings) VALUES (?, ?, ?, ?)').run(
+				'test_harbor_id',
+				'Test',
+				'test-slug',
+				'{}',
+			);
+
+			appendEvent(db, {
+				id: 'evt_1}',
+				harborId: 'test_harbor_id',
+				aggregateType: 'Harbor',
+				aggregateId: 'test_harbor_id',
+				eventType: 'HarborCreated',
+				version: 1,
+				payload: {},
+			});
+
+			const version = getNextVersion(db, 'Harbor', 'test_harbor_id');
+			expect(version).toBe(2);
 		});
 	});
 });

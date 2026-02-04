@@ -73,3 +73,13 @@ export const getEventsByType = (db: Database, eventType: string, limit?: number)
 
 	return rows.map(mapRowToEvent);
 };
+
+export const getNextVersion = (db: Database, aggregateType: string, aggregateId: string) => {
+	const event = db
+		.prepare<{ version: number }, [string, string]>(`
+      SELECT version FROM events WHERE aggregate_type = ? AND aggregate_id = ? ORDER BY version DESC LIMIT 1
+    `)
+		.get(aggregateType, aggregateId);
+
+	return event ? event.version + 1 : 1;
+};
