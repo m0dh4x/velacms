@@ -1,4 +1,4 @@
-import { db, appendEvent } from '@vela/db';
+import { db, appendEvent, getNextVersion } from '@vela/db';
 import { nanoid } from 'nanoid';
 import { HTTPException } from 'hono/http-exception';
 
@@ -88,4 +88,25 @@ export const getHarborsByUser = (userId: string) => {
 		createdAt: new Date(harbor.created_at),
 		updatedAt: new Date(harbor.updated_at),
 	}));
+};
+
+export const deleteHarbor = (id: string, userId: string) => {
+	getHarborById(id); // throws 404 if not found
+
+	const nextVersion = getNextVersion(db, 'Harbor', id);
+
+	db.transaction(() => {
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId: id,
+			aggregateType: 'Harbor',
+			aggregateId: id,
+			eventType: 'HarborDeleted',
+			version: nextVersion,
+			payload: { deletedBy: userId },
+			metadata: { userId },
+		});
+
+		db.prepare('DELETE FROM harbors WHERE id = ?').run(id);
+	})();
 };

@@ -1,5 +1,10 @@
 import { Hono } from 'hono';
-import { createHarbor, getHarborById, getHarborsByUser } from '../services/harbor.service';
+import {
+	createHarbor,
+	deleteHarbor,
+	getHarborById,
+	getHarborsByUser,
+} from '../services/harbor.service';
 import { HTTPException } from 'hono/http-exception';
 
 type AuthVariables = {
@@ -23,4 +28,11 @@ harborRoute.post('/', async (c) => {
 	if (!name || !slug) throw new HTTPException(400, { message: 'Name and slug are required' });
 	const userId = c.get('user').id;
 	return c.json(createHarbor(slug, name, userId, organizationId), 201);
+});
+
+harborRoute.delete('/:id', (c) => {
+	const id = c.req.param('id');
+	const userId = c.get('user').id;
+	deleteHarbor(id, userId);
+	return c.body(null, 204);
 });
