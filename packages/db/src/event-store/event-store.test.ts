@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach } from 'bun:test';
 import { Database } from 'bun:sqlite';
-import { appendEvent, getEventsByType, getEvents } from '../events';
-import { saveSnapshot, loadSnapshot } from '../snapshots';
-import { rehydrateAggregate } from '../aggregate';
+import { appendEvent, getEventsByType, getEvents } from './events';
+import { saveSnapshot, loadSnapshot } from './snapshots';
+import { rehydrateAggregate } from './aggregate';
 
 let db: Database;
 
