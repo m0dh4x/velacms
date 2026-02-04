@@ -16,3 +16,6 @@ db.run('PRAGMA journal_mode = WAL;');
 
 // Enforce foreign key constraints
 db.run('PRAGMA foreign_keys = ON;');
+
+// Export event store
+export * from './event-store';
