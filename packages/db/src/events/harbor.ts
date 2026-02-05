@@ -22,6 +22,7 @@ export type HarborCreatedPayload = {
 export type HarborUpdatedPayload = {
 	name?: string;
 	settings?: Record<string, unknown>;
+	updatedBy: string;
 };
 
 export const applyHarborEvent = (state: HarborState, event: StoredEvent): HarborState => {

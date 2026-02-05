@@ -90,6 +90,38 @@ export const getHarborsByUser = (userId: string) => {
 	}));
 };
 
+export const updateHarbor = (
+	id: string,
+	input: { name?: string; settings?: Record<string, unknown> },
+	userId: string,
+) => {
+	const current = getHarborById(id);
+	const nextVersion = getNextVersion(db, 'Harbor', id);
+
+	db.transaction(() => {
+		db.prepare(
+			`UPDATE harbors SET name = ?, settings = ?, updated_at = datetime('now') WHERE id = ?`,
+		).run(input.name ?? current.name, JSON.stringify(input.settings ?? current.settings), id);
+
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId: id,
+			aggregateType: 'Harbor',
+			aggregateId: id,
+			eventType: 'HarborUpdated',
+			version: nextVersion,
+			payload: {
+				...(input.name !== undefined && { name: input.name }),
+				...(input.settings !== undefined && { settings: input.settings }),
+				updatedBy: userId,
+			},
+			metadata: { userId },
+		});
+	})();
+
+	return getHarborById(id);
+};
+
 export const deleteHarbor = (id: string, userId: string) => {
 	getHarborById(id); // throws 404 if not found
 
