@@ -1,6 +1,7 @@
 import { db, appendEvent, getNextVersion } from '@vela/db';
 import { nanoid } from 'nanoid';
 import { HTTPException } from 'hono/http-exception';
+import { setupHarborDefaults } from './harbor.defaults';
 
 type HarborRow = {
 	id: string;
@@ -11,6 +12,26 @@ type HarborRow = {
 	created_at: string;
 	updated_at: string;
 };
+type StoredHarbor = {
+	id: string;
+	name: string;
+	slug: string;
+	settings: string;
+	organizationId: string | null;
+	createdAt: string;
+	updatedAt: string;
+};
+
+// helper function to map event row data to stored event data (snake_case to camelCase)
+const mapRowToHarbor = (row: HarborRow): StoredHarbor => ({
+	id: row.id,
+	name: row.name,
+	slug: row.slug,
+	settings: row.settings,
+	organizationId: row.organization_id,
+	createdAt: row.created_at,
+	updatedAt: row.updated_at,
+});
 
 export const createHarbor = (
 	slug: string,
@@ -41,6 +62,8 @@ export const createHarbor = (
 			payload: { id: harborId, name, slug, settings: {}, createdBy: userId, organizationId },
 			metadata: { userId },
 		});
+
+		setupHarborDefaults(harborId, userId);
 	})();
 
 	return getHarborById(harborId);
@@ -56,15 +79,7 @@ export const getHarborById = (id: string) => {
 	if (!harbor) {
 		throw new HTTPException(404, { message: 'Harbor not found' });
 	}
-	return {
-		id: harbor.id,
-		name: harbor.name,
-		slug: harbor.slug,
-		settings: JSON.parse(harbor.settings),
-		organizationId: harbor.organization_id,
-		createdAt: new Date(harbor.created_at),
-		updatedAt: new Date(harbor.updated_at),
-	};
+	return mapRowToHarbor(harbor);
 };
 
 export const getHarborsByUser = (userId: string) => {
@@ -79,15 +94,7 @@ export const getHarborsByUser = (userId: string) => {
 		`)
 		.all(userId);
 
-	return harbors.map((harbor) => ({
-		id: harbor.id,
-		name: harbor.name,
-		slug: harbor.slug,
-		settings: JSON.parse(harbor.settings),
-		organizationId: harbor.organization_id,
-		createdAt: new Date(harbor.created_at),
-		updatedAt: new Date(harbor.updated_at),
-	}));
+	return harbors.map(mapRowToHarbor);
 };
 
 export const updateHarbor = (
