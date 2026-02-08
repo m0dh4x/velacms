@@ -64,8 +64,8 @@ export const setupHarborDefaults = (harborId: string, userId: string) => {
 
 	// Add creator as admin member
 	db.prepare(
-		`INSERT INTO harbor_members (id, user_id, harbor_id, role_id, permissions)
-		 VALUES (?, ?, ?, ?, '{}')`,
+		`INSERT INTO harbor_members (id, user_id, harbor_id, role_id, is_owner, permissions)
+		 VALUES (?, ?, ?, ?, 1,'{}')`,
 	).run(`mem_${nanoid(16)}`, userId, harborId, adminRoleId);
 
 	// Default locale (English)
