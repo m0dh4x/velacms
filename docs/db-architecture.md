@@ -85,6 +85,7 @@ erDiagram
         text user_id FK
         text harbor_id FK
         text role_id FK
+        boolean is_owner "harbor ownership flag"
         json permissions "per-user overrides"
         datetime created_at
         datetime updated_at
@@ -395,6 +396,13 @@ Roles are **custom and per-tenant**. Each harbor and organization can define the
 | admin  | Full control over harbor settings, users, and content |
 | editor | Can create, edit, and delete content                  |
 | viewer | Read-only access to content                           |
+
+**Harbor Ownership:**
+
+Harbors use an `is_owner` flag on `harbor_members` to distinguish ownership from roles:
+
+- **Owner** (`is_owner = true`) — created the harbor. Can delete harbor, transfer ownership, manage billing. Cannot be removed by admins.
+- **Member** (`is_owner = false`) — permissions determined by their assigned role.
 
 **Organization Membership:**
 
