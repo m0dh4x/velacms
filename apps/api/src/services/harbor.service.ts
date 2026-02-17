@@ -85,10 +85,9 @@ export const getHarborById = (id: string) => {
 export const getHarborsByUser = (userId: string) => {
 	const harbors = db
 		.prepare<HarborRow, [string]>(`
-      SELECT id, name, slug, settings, organization_id, created_at, updated_at
+			SELECT h.id, h.name, h.slug, h.settings, h.organization_id, h.created_at, h.updated_at
 			FROM harbors h
-			INNER JOIN harbor_members hm
-			ON h.id = hm.harbor_id
+			INNER JOIN harbor_members hm ON h.id = hm.harbor_id
 			WHERE hm.user_id = ?
 			ORDER BY h.created_at DESC
 		`)
