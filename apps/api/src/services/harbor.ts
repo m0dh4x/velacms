@@ -38,7 +38,7 @@ export const createHarbor = (
 	name: string,
 	userId: string,
 	organizationId: string | null,
-) => {
+): StoredHarbor => {
 	const slugExists = db.prepare('SELECT * FROM harbors WHERE slug = ?').get(slug);
 
 	if (slugExists) {
