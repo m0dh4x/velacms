@@ -99,12 +99,12 @@ export const createBlueprint = (
 	return getBlueprintById(harborId, blueprintId);
 };
 
-export const getBlueprintById = (harborId: string, id: string): StoredBlueprint => {
+export const getBlueprintById = (harborId: string, blueprintId: string): StoredBlueprint => {
 	const blueprint = db
 		.prepare<BlueprintRow, [string, string]>(
 			'SELECT * FROM blueprints WHERE harbor_id = ? AND id = ?',
 		)
-		.get(harborId, id);
+		.get(harborId, blueprintId);
 
 	if (!blueprint) {
 		throw new HTTPException(404, { message: 'Blueprint not found' });
@@ -133,12 +133,12 @@ export const getBlueprintsByHarbor = (harborId: string, type?: string): StoredBl
 
 export const updateBlueprint = (
 	harborId: string,
-	id: string,
+	blueprintId: string,
 	input: UpdateBlueprintInput,
 	userId: string,
 ): StoredBlueprint => {
-	const blueprint = getBlueprintById(harborId, id);
-	const nextVersion = getNextVersion(db, 'Blueprint', id);
+	const blueprint = getBlueprintById(harborId, blueprintId);
+	const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
 	const newSchemaVersion = input.schema ? blueprint.version + 1 : blueprint.version;
 
 	db.transaction(() => {
@@ -147,7 +147,7 @@ export const updateBlueprint = (
 			harborId,
 			aggregateType: 'Blueprint',
 			eventType: 'BlueprintUpdated',
-			aggregateId: id,
+			aggregateId: blueprintId,
 			version: nextVersion,
 			payload: {
 				...(input.name !== undefined && { name: input.name }),
@@ -172,21 +172,21 @@ export const updateBlueprint = (
 			JSON.stringify(input.settings ?? blueprint.settings),
 			newSchemaVersion,
 			harborId,
-			id,
+			blueprintId,
 		);
 	})();
 
-	return getBlueprintById(harborId, id);
+	return getBlueprintById(harborId, blueprintId);
 };
 
-export const deleteBlueprint = (harborId: string, id: string, userId: string): void => {
-	getBlueprintById(harborId, id);
+export const deleteBlueprint = (harborId: string, blueprintId: string, userId: string): void => {
+	getBlueprintById(harborId, blueprintId);
 
 	const contentCount = db
 		.prepare<{ count: number }, [string]>(
 			'SELECT COUNT(*) as count FROM content WHERE blueprint_id = ?',
 		)
-		.get(id);
+		.get(blueprintId);
 
 	if (contentCount && contentCount.count > 0) {
 		throw new HTTPException(409, {
@@ -194,20 +194,20 @@ export const deleteBlueprint = (harborId: string, id: string, userId: string): v
 		});
 	}
 
-	const nextVersion = getNextVersion(db, 'Blueprint', id);
+	const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
 
 	db.transaction(() => {
 		appendEvent(db, {
 			id: `evt_${nanoid(16)}`,
 			harborId,
 			aggregateType: 'Blueprint',
-			aggregateId: id,
+			aggregateId: blueprintId,
 			eventType: 'BlueprintDeleted',
 			version: nextVersion,
 			payload: { deletedBy: userId },
 			metadata: { userId },
 		});
 
-		db.prepare('DELETE FROM blueprints WHERE id = ?').run(id);
+		db.prepare('DELETE FROM blueprints WHERE id = ?').run(blueprintId);
 	})();
 };
