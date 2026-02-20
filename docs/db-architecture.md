@@ -133,7 +133,8 @@ erDiagram
         text slug
         text title
         json data
-        text workflow_state
+        text workflow_state "editorial flow state"
+        boolean is_published "visibility to end users"
         integer version
         datetime published_at
         text created_by FK
