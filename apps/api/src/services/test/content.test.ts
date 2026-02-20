@@ -158,6 +158,34 @@ describe('Content Service', () => {
 			expect(content.updatedBy).toBe(TEST_USER_ID);
 		});
 
+		test('throws 409 for duplicated content', () => {
+			createContent(
+				TEST_HARBOR_ID,
+				{
+					blueprintId: TEST_BLUEPRINT_ID,
+					slug: 'hello-world',
+					title: 'Hello World',
+					data: { body: 'Some content here' },
+					locale: 'en',
+				},
+				TEST_USER_ID,
+			);
+
+			expect(() =>
+				createContent(
+					TEST_HARBOR_ID,
+					{
+						blueprintId: TEST_BLUEPRINT_ID,
+						slug: 'hello-world',
+						title: 'Hello World',
+						data: { body: 'Some content here' },
+						locale: 'en',
+					},
+					TEST_USER_ID,
+				),
+			).toThrow('Content already exists');
+		});
+
 		test('throws 404 for non-existent content', () => {
 			expect(() => getContentById(TEST_HARBOR_ID, 'cnt_doesnotexist00')).toThrow();
 		});
@@ -196,7 +224,5 @@ describe('Content Service', () => {
 		// ...
 	});
 
-	describe('deleteContent', () => {
-		// ...
-	});
+	describe('deleteContent', () => {});
 });
