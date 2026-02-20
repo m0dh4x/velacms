@@ -43,6 +43,7 @@
         "@vela/auth": "workspace:*",
         "@vela/db": "workspace:*",
         "hono": "^4",
+        "zod": "^4.3.6",
       },
     },
     "packages/auth": {

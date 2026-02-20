@@ -4,7 +4,7 @@ import { HTTPException } from 'hono/http-exception';
 
 export const harborGuard = createMiddleware(async (c, next) => {
 	const userId = c.get('user').id;
-	const harborId = c.req.param('id');
+	const harborId = c.req.param('harborId') ?? c.req.param('id');
 
 	if (!harborId) {
 		throw new HTTPException(400, { message: 'Harbor ID is required' });
