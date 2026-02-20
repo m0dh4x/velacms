@@ -133,7 +133,7 @@ erDiagram
         text slug
         text title
         json data
-        text workflow_state "editorial flow state"
+        text workflow_state "nullable, set if blueprint has workflowId"
         boolean is_published "visibility to end users"
         integer version
         datetime published_at

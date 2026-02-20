@@ -11,7 +11,7 @@ export const up = (db: Database) => {
 			slug TEXT NOT NULL,
 			title TEXT NOT NULL,
 			data TEXT NOT NULL,
-			workflow_state TEXT NOT NULL,
+			workflow_state TEXT,
 			version INTEGER NOT NULL,
 			published_at DATETIME,
 			created_by TEXT NOT NULL REFERENCES user(id) ON DELETE CASCADE,

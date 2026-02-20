@@ -125,6 +125,7 @@ export const blueprintSettingsSchema = z
 		titleField: z.string().optional(),
 		slugField: z.string().optional(),
 		previewUrl: z.string().url().optional(),
+		workflowId: z.string().optional(),
 	})
 	.optional();
 
