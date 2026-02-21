@@ -15,7 +15,8 @@ mock.module('@vela/db', () => ({
 }));
 
 // Import service AFTER mock is registered
-const { createContent, getContentById, getContentByHarbor } = await import('../content');
+const { createContent, getContentById, getContentByHarbor, deleteContent } =
+	await import('../content');
 
 // Test fixtures
 const TEST_HARBOR_ID = 'har_testharbor0001';
@@ -224,5 +225,21 @@ describe('Content Service', () => {
 		// ...
 	});
 
-	describe('deleteContent', () => {});
+	describe('deleteContent', () => {
+		test('deletes Content', () => {
+			const content = createContent(
+				TEST_HARBOR_ID,
+				{
+					blueprintId: TEST_BLUEPRINT_ID,
+					slug: 'hello-world',
+					title: 'Hello World',
+					data: { body: 'Some content here' },
+					locale: 'en',
+				},
+				TEST_USER_ID,
+			);
+			deleteContent(TEST_HARBOR_ID, content.id);
+			expect(() => getContentById(TEST_HARBOR_ID, content.id)).toThrow('Content not found');
+		});
+	});
 });
