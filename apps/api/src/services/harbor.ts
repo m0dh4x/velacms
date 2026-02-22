@@ -102,9 +102,10 @@ export const updateHarbor = (
 	userId: string,
 ) => {
 	const current = getHarborById(id);
-	const nextVersion = getNextVersion(db, 'Harbor', id);
 
 	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Harbor', id);
+
 		db.prepare(
 			`UPDATE harbors SET name = ?, settings = ?, updated_at = datetime('now') WHERE id = ?`,
 		).run(input.name ?? current.name, JSON.stringify(input.settings ?? current.settings), id);
@@ -131,9 +132,9 @@ export const updateHarbor = (
 export const deleteHarbor = (id: string, userId: string) => {
 	getHarborById(id); // throws 404 if not found
 
-	const nextVersion = getNextVersion(db, 'Harbor', id);
-
 	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Harbor', id);
+
 		appendEvent(db, {
 			id: `evt_${nanoid(16)}`,
 			harborId: id,

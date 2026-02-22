@@ -138,10 +138,11 @@ export const updateBlueprint = (
 	userId: string,
 ): StoredBlueprint => {
 	const blueprint = getBlueprintById(harborId, blueprintId);
-	const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
 	const newSchemaVersion = input.schema ? blueprint.version + 1 : blueprint.version;
 
 	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
+
 		appendEvent(db, {
 			id: `evt_${nanoid(16)}`,
 			harborId,
@@ -194,9 +195,9 @@ export const deleteBlueprint = (harborId: string, blueprintId: string, userId: s
 		});
 	}
 
-	const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
-
 	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Blueprint', blueprintId);
+
 		appendEvent(db, {
 			id: `evt_${nanoid(16)}`,
 			harborId,
