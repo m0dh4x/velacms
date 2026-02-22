@@ -1,4 +1,4 @@
-import { appendEvent, db } from '@vela/db';
+import { appendEvent, db, getNextVersion } from '@vela/db';
 import type { CreateContentInput } from '../schemas/content';
 import { nanoid } from 'nanoid';
 import { HTTPException } from 'hono/http-exception';
@@ -83,7 +83,7 @@ export const createContent = (
 		appendEvent(db, {
 			id: `evt_${nanoid(16)}`,
 			harborId,
-			aggregateType: 'content',
+			aggregateType: 'Content',
 			aggregateId: contentId,
 			eventType: 'ContentCreated',
 			version: 1,
@@ -132,6 +132,26 @@ export const createContent = (
 	})();
 
 	return getContentById(harborId, contentId);
+};
+
+export const deleteContent = (harborId: string, contentId: string, userId: string) => {
+	getContentById(harborId, contentId);
+
+	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Content', contentId);
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId,
+			aggregateType: 'Content',
+			aggregateId: contentId,
+			eventType: 'ContentDeleted',
+			version: nextVersion,
+			payload: { deletedBy: userId },
+			metadata: { userId },
+		});
+
+		db.prepare('DELETE FROM content WHERE harbor_id = ? AND id = ?').run(harborId, contentId);
+	})();
 };
 
 export const getContentById = (harborId: string, contentId: string): StoredContent => {

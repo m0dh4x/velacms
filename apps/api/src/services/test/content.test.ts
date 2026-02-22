@@ -226,7 +226,7 @@ describe('Content Service', () => {
 	});
 
 	describe('deleteContent', () => {
-		test('deletes Content', () => {
+		test('deletes Content by id', () => {
 			const content = createContent(
 				TEST_HARBOR_ID,
 				{
@@ -238,7 +238,7 @@ describe('Content Service', () => {
 				},
 				TEST_USER_ID,
 			);
-			deleteContent(TEST_HARBOR_ID, content.id);
+			deleteContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
 			expect(() => getContentById(TEST_HARBOR_ID, content.id)).toThrow('Content not found');
 		});
 	});
