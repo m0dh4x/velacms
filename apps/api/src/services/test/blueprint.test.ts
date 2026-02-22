@@ -260,7 +260,7 @@ describe('Blueprint Service', () => {
 			expect(updated.version).toBe(1);
 		});
 
-		test('throws 404 for non-existent blueprint', () => {
+		test('throws 404 when updating a harbor that does not exist', () => {
 			expect(() =>
 				updateBlueprint(TEST_HARBOR_ID, 'bpr_doesnotexist0', { name: 'x' }, TEST_USER_ID),
 			).toThrow('Blueprint not found');
@@ -311,7 +311,7 @@ describe('Blueprint Service', () => {
 			);
 		});
 
-		test('throws 404 for non-existent blueprint', () => {
+		test('throws 404 when deleting a harbor that does not exist', () => {
 			expect(() => deleteBlueprint(TEST_HARBOR_ID, 'bpr_doesnotexist0', TEST_USER_ID)).toThrow(
 				'Blueprint not found',
 			);
