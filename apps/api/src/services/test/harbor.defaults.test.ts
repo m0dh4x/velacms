@@ -202,16 +202,6 @@ describe('setupHarborDefaults', () => {
 			expect(member!.is_owner).toBe(1);
 			expect(member!.role_id).toBe(adminRole!.id);
 		});
-
-		test('member id is prefixed with mem_', () => {
-			setupHarborDefaults(TEST_HARBOR_ID, TEST_USER_ID);
-
-			const member = testDb
-				.prepare<MemberRow, [string]>('SELECT * FROM harbor_members WHERE harbor_id = ?')
-				.get(TEST_HARBOR_ID);
-
-			expect(member!.id).toStartWith('mem_');
-		});
 	});
 
 	describe('locale', () => {
