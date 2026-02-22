@@ -1,5 +1,5 @@
 import { appendEvent, db, getNextVersion } from '@vela/db';
-import type { CreateContentInput } from '../schemas/content';
+import type { CreateContentInput, UpdateContentInput } from '../schemas/content';
 import { nanoid } from 'nanoid';
 import { HTTPException } from 'hono/http-exception';
 
@@ -128,6 +128,51 @@ export const createContent = (
 			userId,
 			new Date().toISOString(),
 			new Date().toISOString(),
+		);
+	})();
+
+	return getContentById(harborId, contentId);
+};
+
+export const updateContent = (
+	harborId: string,
+	contentId: string,
+	input: UpdateContentInput,
+	userId: string,
+): StoredContent => {
+	const current = getContentById(harborId, contentId);
+
+	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Content', contentId);
+
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId,
+			aggregateType: 'Content',
+			aggregateId: contentId,
+			eventType: 'ContentUpdated',
+			version: nextVersion,
+			payload: {
+				...(input.title !== undefined && { title: input.title }),
+				...(input.slug !== undefined && { slug: input.slug }),
+				...(input.data !== undefined && { data: input.data }),
+				...(input.workflowState !== undefined && { workflowState: input.workflowState }),
+				updatedBy: userId,
+			},
+			metadata: { userId },
+		});
+
+		db.prepare(
+			`UPDATE content SET title = ?, slug = ?, data = ?, workflow_state = ?, version = ?, updated_by = ?, updated_at = datetime('now') WHERE harbor_id = ? AND id = ?`,
+		).run(
+			input.title ?? current.title,
+			input.slug ?? current.slug,
+			JSON.stringify(input.data ?? current.data),
+			input.workflowState ?? current.workflowState,
+			current.version + 1,
+			userId,
+			harborId,
+			contentId,
 		);
 	})();
 
