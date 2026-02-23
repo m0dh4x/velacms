@@ -30,6 +30,10 @@ export type BlueprintUpdatedPayload = {
 	updatedBy: string;
 };
 
+export type BlueprintDeletedPayload = {
+	deletedBy: string;
+};
+
 export const applyBlueprintEvent = (state: BlueprintState, event: StoredEvent): BlueprintState => {
 	switch (event.eventType) {
 		case 'BlueprintCreated': {
