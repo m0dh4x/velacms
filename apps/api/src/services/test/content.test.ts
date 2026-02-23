@@ -1,6 +1,7 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import { Database } from 'bun:sqlite';
 import { appendEvent, getEvents, getNextVersion } from '@vela/db';
+import { publishContent, unpublishContent } from '../content';
 
 let testDb = new Database(':memory:');
 
@@ -159,7 +160,7 @@ describe('Content Service', () => {
 			expect(content.updatedBy).toBe(TEST_USER_ID);
 		});
 
-		test('throws 409 for duplicated content', () => {
+		test('throws 409 for duplicated slug', () => {
 			createContent(
 				TEST_HARBOR_ID,
 				{
@@ -193,7 +194,7 @@ describe('Content Service', () => {
 	});
 
 	describe('getContentByHarbor', () => {
-		test('returns content by harbor', () => {
+		test('returns all content for a harbor', () => {
 			createContent(
 				TEST_HARBOR_ID,
 				{
@@ -256,7 +257,7 @@ describe('Content Service', () => {
 	});
 
 	describe('deleteContent', () => {
-		test('deletes Content by id', () => {
+		test('deletes content by id', () => {
 			const content = createContent(
 				TEST_HARBOR_ID,
 				{
@@ -270,6 +271,49 @@ describe('Content Service', () => {
 			);
 			deleteContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
 			expect(() => getContentById(TEST_HARBOR_ID, content.id)).toThrow('Content not found');
+		});
+	});
+
+	describe('publish and unpublish content', () => {
+		test('publishes content', () => {
+			const content = createContent(
+				TEST_HARBOR_ID,
+				{
+					blueprintId: TEST_BLUEPRINT_ID,
+					slug: 'hello-world',
+					title: 'Hello World',
+					data: { body: 'Some content here' },
+					locale: 'en',
+				},
+				TEST_USER_ID,
+			);
+			const published = publishContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
+			expect(published.isPublished).toBe(true);
+			expect(published.publishedAt).not.toBeNull();
+			expect(published.version).toBe(2);
+			expect(published.updatedBy).toBe(TEST_USER_ID);
+		});
+		test('unpublishes content', () => {
+			const content = createContent(
+				TEST_HARBOR_ID,
+				{
+					blueprintId: TEST_BLUEPRINT_ID,
+					slug: 'hello-world',
+					title: 'Hello World',
+					data: { body: 'Some content here' },
+					locale: 'en',
+				},
+				TEST_USER_ID,
+			);
+
+			const published = publishContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
+			expect(published.isPublished).toBe(true);
+
+			const unpublished = unpublishContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
+			expect(unpublished.isPublished).toBe(false);
+			expect(unpublished.publishedAt).toBeNull();
+			expect(unpublished.version).toBe(3);
+			expect(unpublished.updatedBy).toBe(TEST_USER_ID);
 		});
 	});
 });
