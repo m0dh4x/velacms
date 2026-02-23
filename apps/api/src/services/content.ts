@@ -87,7 +87,16 @@ export const createContent = (
 			aggregateId: contentId,
 			eventType: 'ContentCreated',
 			version: 1,
-			payload: { id: contentId, harborId, slug: input.slug },
+			payload: {
+				id: contentId,
+				harborId,
+				blueprintId: input.blueprintId,
+				canonicalId,
+				locale: input.locale,
+				slug: input.slug,
+				title: input.title,
+				data: input.data,
+			},
 			metadata: {
 				userId,
 			},
