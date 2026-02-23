@@ -231,3 +231,58 @@ export const getContentByHarbor = (harborId: string) => {
 
 	return content.map(mapRowToContent);
 };
+
+export const publishContent = (
+	harborId: string,
+	contentId: string,
+	userId: string,
+): StoredContent => {
+	getContentById(harborId, contentId);
+
+	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Content', contentId);
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId,
+			aggregateType: 'Content',
+			aggregateId: contentId,
+			eventType: 'ContentPublished',
+			version: nextVersion,
+			payload: { publishedBy: userId },
+			metadata: { userId },
+		});
+
+		db.prepare(
+			`UPDATE content SET is_published = 1, published_at = datetime('now'), version = ?, updated_by = ?, updated_at = datetime('now') WHERE harbor_id = ? AND id = ?`,
+		).run(nextVersion, userId, harborId, contentId);
+	})();
+
+	return getContentById(harborId, contentId);
+};
+export const unpublishContent = (
+	harborId: string,
+	contentId: string,
+	userId: string,
+): StoredContent => {
+	getContentById(harborId, contentId);
+
+	db.transaction(() => {
+		const nextVersion = getNextVersion(db, 'Content', contentId);
+		appendEvent(db, {
+			id: `evt_${nanoid(16)}`,
+			harborId,
+			aggregateType: 'Content',
+			aggregateId: contentId,
+			eventType: 'ContentUnpublished',
+			version: nextVersion,
+			payload: { unpublishedBy: userId },
+			metadata: { userId },
+		});
+
+		db.prepare(
+			`UPDATE content SET is_published = 0, published_at = NULL, version = ?, updated_by = ?, updated_at = datetime('now') WHERE harbor_id = ? AND id = ?`,
+		).run(nextVersion, userId, harborId, contentId);
+	})();
+
+	return getContentById(harborId, contentId);
+};
