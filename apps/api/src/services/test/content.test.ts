@@ -1,7 +1,6 @@
 import { describe, test, expect, beforeEach, mock } from 'bun:test';
 import { Database } from 'bun:sqlite';
 import { appendEvent, getEvents, getNextVersion } from '@vela/db';
-import { publishContent, unpublishContent } from '../content';
 
 let testDb = new Database(':memory:');
 
@@ -16,8 +15,15 @@ mock.module('@vela/db', () => ({
 }));
 
 // Import service AFTER mock is registered
-const { createContent, getContentById, getContentByHarbor, deleteContent, updateContent } =
-	await import('../content');
+const {
+	createContent,
+	getContentById,
+	getContentByHarbor,
+	deleteContent,
+	updateContent,
+	publishContent,
+	unpublishContent,
+} = await import('../content');
 
 // Test fixtures
 const TEST_HARBOR_ID = 'har_testharbor0001';
