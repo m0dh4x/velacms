@@ -220,6 +220,12 @@ describe('Content Service', () => {
 			const contentFound = getContentByHarbor(TEST_HARBOR_ID);
 			expect(contentFound.length).toBe(2);
 		});
+
+		test('returns empty when harbor has no content', () => {
+			const content = getContentByHarbor(TEST_HARBOR_ID);
+			expect(content).toEqual([]);
+			expect(content.length).toBe(0);
+		});
 	});
 
 	describe('updateContent', () => {
