@@ -5,7 +5,7 @@ import {
 	getHarborById,
 	getHarborsByUser,
 	updateHarbor,
-} from '../services/harbor.service';
+} from '../services/harbor';
 import { HTTPException } from 'hono/http-exception';
 import { harborGuard } from '../middleware/harborGuard';
 
