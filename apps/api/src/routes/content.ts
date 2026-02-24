@@ -7,6 +7,8 @@ import {
 	deleteContent,
 	getContentByHarbor,
 	getContentById,
+	publishContent,
+	unpublishContent,
 } from '../services/content';
 import z from 'zod';
 
@@ -63,6 +65,20 @@ contentRoute.put('/:contentId', async (c) => {
 		);
 	}
 	return c.json(updateContent(harborId, contentId, parsedContent.data, userId), 200);
+});
+
+contentRoute.post('/:contentId/publish', (c) => {
+	const { harborId, contentId } = c.req.param();
+	const userId = c.get('user').id;
+
+	return c.json(publishContent(harborId, contentId, userId), 200);
+});
+
+contentRoute.post('/:contentId/unpublish', (c) => {
+	const { harborId, contentId } = c.req.param();
+	const userId = c.get('user').id;
+
+	return c.json(unpublishContent(harborId, contentId, userId), 200);
 });
 
 contentRoute.delete('/:contentId', (c) => {
