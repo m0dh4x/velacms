@@ -272,6 +272,12 @@ describe('Content Service', () => {
 			deleteContent(TEST_HARBOR_ID, content.id, TEST_USER_ID);
 			expect(() => getContentById(TEST_HARBOR_ID, content.id)).toThrow('Content not found');
 		});
+
+		test('throws 404 for deleting non-existent content', () => {
+			expect(() => deleteContent(TEST_HARBOR_ID, 'cnt_doesnotexist00', TEST_USER_ID)).toThrow(
+				'Content not found',
+			);
+		});
 	});
 
 	describe('publish and unpublish content', () => {
@@ -293,6 +299,7 @@ describe('Content Service', () => {
 			expect(published.version).toBe(2);
 			expect(published.updatedBy).toBe(TEST_USER_ID);
 		});
+
 		test('unpublishes content', () => {
 			const content = createContent(
 				TEST_HARBOR_ID,
@@ -314,6 +321,18 @@ describe('Content Service', () => {
 			expect(unpublished.publishedAt).toBeNull();
 			expect(unpublished.version).toBe(3);
 			expect(unpublished.updatedBy).toBe(TEST_USER_ID);
+		});
+
+		test('throws 404 for publishing non-existent content', () => {
+			expect(() => publishContent(TEST_HARBOR_ID, 'cnt_doesnotexist00', TEST_USER_ID)).toThrow(
+				'Content not found',
+			);
+		});
+
+		test('throws 404 for unpublishing non-existent content', () => {
+			expect(() => unpublishContent(TEST_HARBOR_ID, 'cnt_doesnotexist00', TEST_USER_ID)).toThrow(
+				'Content not found',
+			);
 		});
 	});
 });
