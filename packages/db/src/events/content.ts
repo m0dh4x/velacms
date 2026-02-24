@@ -35,6 +35,12 @@ export type ContentUpdatedPayload = {
 export type ContentDeletedPayload = {
 	deletedBy: string;
 };
+export type ContentPublishedPayload = {
+	publishedBy: string;
+};
+export type ContentUnpublishedPayload = {
+	unpublishedBy: string;
+};
 
 export const applyContentEvent = (state: ContentState, event: StoredEvent): ContentState => {
 	switch (event.eventType) {
@@ -55,6 +61,12 @@ export const applyContentEvent = (state: ContentState, event: StoredEvent): Cont
 				...(payload.data !== undefined && { data: payload.data }),
 				...(payload.workflowState !== undefined && { workflowState: payload.workflowState }),
 			};
+		}
+		case 'ContentPublished': {
+			return { ...state, isPublished: true };
+		}
+		case 'ContentUnpublished': {
+			return { ...state, isPublished: false };
 		}
 		case 'ContentDeleted': {
 			return { ...state, deleted: true };
