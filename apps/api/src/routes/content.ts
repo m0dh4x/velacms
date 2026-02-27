@@ -11,6 +11,7 @@ import {
 	unpublishContent,
 } from '../services/content';
 import z from 'zod';
+import { getRefsByContent } from '../services/content-refs';
 
 type AuthVariables = {
 	user: { id: string };
@@ -79,6 +80,12 @@ contentRoute.post('/:contentId/unpublish', (c) => {
 	const userId = c.get('user').id;
 
 	return c.json(unpublishContent(harborId, contentId, userId), 200);
+});
+
+contentRoute.get('/:contentId/references', (c) => {
+	const { harborId, contentId } = c.req.param();
+	getContentById(harborId, contentId);
+	return c.json(getRefsByContent(contentId), 200);
 });
 
 contentRoute.delete('/:contentId', (c) => {
