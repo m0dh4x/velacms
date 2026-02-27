@@ -2,6 +2,7 @@ import { appendEvent, db, getNextVersion } from '@vela/db';
 import type { CreateContentInput, UpdateContentInput } from '../schemas/content';
 import { nanoid } from 'nanoid';
 import { HTTPException } from 'hono/http-exception';
+import { syncContentRefs } from './content-refs';
 
 type ContentRow = {
 	id: string;
@@ -138,6 +139,8 @@ export const createContent = (
 			new Date().toISOString(),
 			new Date().toISOString(),
 		);
+
+		syncContentRefs(contentId, input.blueprintId, harborId, input.data);
 	})();
 
 	return getContentById(harborId, contentId);
@@ -183,6 +186,10 @@ export const updateContent = (
 			harborId,
 			contentId,
 		);
+
+		if (input.data) {
+			syncContentRefs(contentId, current.blueprintId, harborId, input.data);
+		}
 	})();
 
 	return getContentById(harborId, contentId);
