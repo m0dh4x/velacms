@@ -91,7 +91,7 @@ export const createBlueprint = (
 			input.icon ?? null,
 			input.type,
 			JSON.stringify(input.schema),
-			JSON.stringify(input.settings),
+			JSON.stringify(input.settings ?? {}),
 			1,
 		);
 	})();
